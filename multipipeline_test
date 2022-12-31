@@ -1,0 +1,23 @@
+node{
+    def mavenHome = tool name: "Maven3.8.6"
+    stage("cloning the code from repo"){
+      git credentialsId: 'ff4b8926-bb8f-4507-bc87-30eab4782e30', url: 'https://github.com/Sushma26April/maven-web-application.git'
+      
+    }
+    stage("Mven_package")
+    {
+    sh "${mavenHome}/bin/mvn clean package"
+    }
+
+    stage("Docker_Image_Build"){
+        sh "docker build -t iamsushma/docker-web-app:1.1.1 ."
+    }
+    stage("Docker login and push code"){
+        withCredentials([string(credentialsId: 'docker password', variable: 'Docker_jenkins')]) {
+    // some block
+
+        sh "docker login -u iamsushma -p ${Docker_jenkins}"
+        }
+        sh "docker push iamsushma/docker-web-app:1.1.1 "
+    }
+    }
